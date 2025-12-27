@@ -1,6 +1,6 @@
-![Panopto SCRP Logo](icons/panoptoscrp.png)
+# Panopto Tools Chrome Extension
 
-**Panopto Tools Chrome Extension**
+![Panopto SCRP Logo](icons/panoptoscrp.png)
 
 ## Usage
 
