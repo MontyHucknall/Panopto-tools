@@ -1,0 +1,227 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Panopto Tools</title>
+  <style>
+    /* === Global === */
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      width: 480px;
+      padding: 16px;
+      background: #1e1f24;
+      color: #e4e4e4;
+      margin: 0;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 18px;
+      color: #fff;
+    }
+
+    /* === Header === */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: #2a2b31;
+      border: 1px solid #3c3d45;
+      background-size: cover;
+      background-position: center;
+      flex-shrink: 0;
+      box-shadow: 0 0 4px rgba(0,0,0,0.4);
+    }
+
+    /* === Tabs === */
+    .tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .tabs button {
+      flex: 1;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid #333;
+      background: #2b2c32;
+      color: #ccc;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tabs button:hover {
+      background: #3a3b43;
+      color: #fff;
+    }
+
+    .tabs button.active {
+      background: #007bff;
+      color: #fff;
+      border-color: #007bff;
+      box-shadow: 0 0 6px rgba(0, 123, 255, 0.4);
+    }
+
+    /* === Panels === */
+    .panel {
+      display: none;
+      background: #2a2b31;
+      border: 1px solid #333;
+      border-radius: 10px;
+      padding: 12px;
+      box-shadow: inset 0 0 8px rgba(0,0,0,0.2);
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    .section {
+      margin-bottom: 12px;
+    }
+
+    .small {
+      font-size: 12px;
+      color: #aaa;
+    }
+
+    /* === Buttons === */
+    button.action {
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: none;
+      background: #007bff;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s ease;
+    }
+
+    button.action:hover {
+      background: #0a84ff;
+      box-shadow: 0 0 8px rgba(10,132,255,0.5);
+    }
+
+    button.muted {
+      background: #555;
+    }
+
+    button.muted:hover {
+      background: #666;
+    }
+
+    .actions {
+      margin-top: 6px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* === Inputs === */
+    input[type="file"], input[type="text"], input[type="url"], input[type="checkbox"], input[type="number"] {
+      background: #1f2025;
+      color: #e4e4e4;
+      border: 1px solid #3c3d45;
+      border-radius: 6px;
+      padding: 6px;
+    }
+
+    input::placeholder {
+      color: #777;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid #333;
+      margin: 12px 0;
+    }
+
+    .url-item {
+      background: #232429;
+      padding: 8px;
+      margin-bottom: 8px;
+      border-radius: 6px;
+      border: 1px solid #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo" id="logo" style="background-image: url('panoptoscrpx128.png');"></div>
+    <h2>Panopto Tools</h2>
+  </div>
+
+  <div class="tabs">
+    <button id="tab-transcripts" class="active">Transcripts</button>
+    <button id="tab-streams">Streams</button>
+    <button id="tab-combine">Combine A/V</button>
+  </div>
+
+  <!-- Transcripts panel -->
+  <div id="panel-transcripts" class="panel active">
+    <div class="section">
+      <div class="small">Extract transcript text from the active Panopto page. Make sure the Transcript panel is open in Panopto.</div>
+      <label><input type="checkbox" id="removeTimestamps"> Remove timestamps (all XX:XX patterns)</label><br>
+      <div class="actions">
+        <button id="extractTrans" class="action">Extract Captions</button>
+        <button id="openTranscriptTab" class="action muted">Open in New Tab</button>
+      </div>
+    </div>
+    <div id="transExportStatus" class="small"></div>
+  </div>
+
+  <!-- Streams panel -->
+  <div id="panel-streams" class="panel">
+    <div class="section">
+      <div class="small">Captured stream & media URLs for the active tab (automatically collected from network requests).</div>
+      <div class="actions">
+        <button id="refreshStreams" class="action">Refresh</button>
+        <button id="clearStreams" class="action muted">Clear</button>
+        <button id="showAllStreams" class="action muted">Show All</button>
+      </div>
+    </div>
+    <div id="streamsList"></div>
+    <div id="streamsStatus" class="small"></div>
+  </div>
+
+  <!-- Combine A/V panel -->
+  <div id="panel-combine" class="panel">
+    <div class="section">
+      <div class="small">Combine local (or same-origin) video + audio sources. Output is WebM (downloaded automatically).</div>
+
+      <div style="margin-top:8px;">
+        <div><strong>Video</strong></div>
+        <input id="videoFile" type="file" accept="video/*"><br>
+        <input id="videoUrl" placeholder="Or paste a video URL (optional)" style="width:100%; margin-top:6px;">
+      </div>
+
+      <div style="margin-top:8px;">
+        <div><strong>Audio</strong></div>
+        <input id="audioFile" type="file" accept="audio/*,video/*"><br>
+        <input id="audioUrl" placeholder="Or paste an audio URL (optional)" style="width:100%; margin-top:6px;">
+      </div>
+
+      <div style="margin-top:8px;">
+        <label><input id="videoOnly" type="checkbox"> Use video only (ignore audio source)</label>
+      </div>
+
+      <div class="actions" style="margin-top:8px;">
+        <button id="combineStart" class="action">Combine & Download (WebM)</button>
+        <button id="combineStop" class="action muted" disabled>Stop</button>
+      </div>
+
+      <div id="combineStatus" class="small" style="margin-top:8px;">Status: idle</div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

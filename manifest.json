@@ -1,0 +1,45 @@
+{
+    "manifest_version": 3,
+    "name": "Panopto Tools",
+    "version": "1.0",
+    "description": "Transcript export, stream URL finder, and local A/V combiner utilities for Panopto pages.",
+    "permissions": [
+      "activeTab",
+      "scripting",
+      "downloads",
+      "storage",
+      "webRequest"
+    ],
+    "host_permissions": [
+      "*://*.panopto.com/*",
+      "*://*.panopto.eu/*",
+      "*://*.cloud.panopto.eu/*",
+      "*://*.cloudfront.net/*",
+      "*://*.divicast.com/*"
+    ],
+    "background": {
+      "service_worker": "background.js"
+    },
+    "action": {
+      "default_popup": "popup.html",
+      "default_title": "Panopto Tools",
+      "default_icon": {
+        "16": "PanoptoScrp.png",
+        "48": "PanoptoScrp.png",
+        "128": "PanoptoScrp.png"
+      }
+    },
+    "icons": {
+      "16": "PanoptoScrpx16.png",
+      "48": "PanoptoScrpx48.png",
+      "128": "PanoptoScrpx128.png"
+    },
+    "content_scripts": [
+      {
+        "matches": ["*://*.panopto.com/*", "*://*.panopto.eu/*", "*://*.cloud.panopto.eu/*"],
+        "js": ["content.js"],
+        "run_at": "document_idle"
+      }
+    ]
+  }
+  
